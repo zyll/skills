@@ -52,9 +52,22 @@ $(document).ready(function() {
 
     tagName: 'li',
 
+    events: {
+        'click a.add:first': 'addSkill'
+    },
+
+    initialize: function() {
+        _.bindAll(this, 'render', 'addSkill');
+        this.model.childs.bind('add', this.render);
+    },
+
+    addSkill: function(event) {
+        event.preventDefault();
+        this.model.childs.add(new Skill({name: this.model.get('name') + '_child'}));
+    },
+
     render: function() {
-      if(!this.model.hasChild()) {
-        $(this.el).html('<a href="" class="file">'+this.model.get('name')+'</a>');
+        // level bar
         var sliderEl = $('<div class="level"></div>');
         sliderEl.slider({
             range: "min",
@@ -62,13 +75,26 @@ $(document).ready(function() {
             min: 0,
             max: 10
         });
-        $(this.el).append(sliderEl);
-      } else {
+        // add a skill element
+        var addSkill = '<a href="#" class="add" title="ajouter dans la catégorie"> + </a>';
+
+        // keep a link on childsView
         this.childsView = this.childsView || new SkillsView({collection: this.model.childs});
-        $(this.el).html('<label for="'+this.model.get('name')+'">'+this.model.get('name')+'</label>')
-          .append('<input type="checkbox" id="'+this.model.get('name')+'"/>')
-          .append(this.childsView.render().el);
+
+      if(this.model.hasChild()) {
+        var skilltitle = $('<label class="skilltitle" for="'+this.model.get('name')+'">'+this.model.get('name')+'</label>')
+          .append(addSkill)
+          .append(sliderEl);
+        $(this.el).html(skilltitle)
+          .append('<input type="checkbox" id="'+this.model.get('name')+'"/>');
+      } else {
+        var skilltitle = $('<a href="" class="file skilltitle">'+this.model.get('name')+'</a>')
+          .append(addSkill)
+          .append(sliderEl);
+        $(this.el).html(skilltitle);
       }
+      $(this.el).append(this.childsView.render().el);
+
       return this;
     }
 

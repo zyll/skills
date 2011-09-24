@@ -1,3 +1,4 @@
 a {text-decoration: none;}
 a:visited {color: inherit; }
-.level { width: 100px;}
+.level { width: 100px; position: float; display: inline-block; float: right;}
+ol#skills {width: 400px;}
