@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "mongoose": "",
+    "express": "",
+    "connect": "",
+    "jade": "",
+    "connect-form": "",
+    "connect-mongoose": ""
+  },
+  "directories": {
+    "static": "./public"
+  },
+  "name": "skills",
+  "author": "Zyll <contact@af83.com>",
+  "version": "0.0.1",
+  "main": "./app.js",
+  "description": "skills treeview"
+}

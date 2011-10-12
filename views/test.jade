@@ -1,0 +1,25 @@
+!!!  5
+html(lang="en")
+  head
+    meta(http-equiv="Content-Type", content="text/html; charset=utf-8")
+    title Seer Jasmine suite
+    link(type="text/css", href="jasmine/jasmine.css", rel="Stylesheet", media="screen")
+    !=partial('assets', {assets: testassets})
+    script
+      var jsApiReporter;
+      (function() {
+        var jasmineEnv = jasmine.getEnv();
+        jsApiReporter = new jasmine.JsApiReporter();
+        var trivialReporter = new jasmine.TrivialReporter();
+        jasmineEnv.addReporter(jsApiReporter);
+        jasmineEnv.addReporter(trivialReporter);
+        jasmineEnv.specFilter = function(spec) {
+          return trivialReporter.specFilter(spec);
+        };
+        window.onload = function() {
+          jasmineEnv.execute();
+        };
+      })();  
+    !=partial('assets', {assets: appassets})
+    !=partial('assets', {assets: {js: tests}})
+  body
