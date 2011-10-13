@@ -90,6 +90,7 @@ $(document).ready(function() {
     }]);
   */
 
+  Backbone.Model.prototype.idAttribute = "_id";
   var Skill = Backbone.Model.extend({
 
     defaults: {
@@ -99,13 +100,28 @@ $(document).ready(function() {
       childs: []
     },
 
+    url: function() {
+      var url = "/skill/";
+      if(this.id) {
+          url += this.id;
+      }
+      return url;
+    },
+
     initialize: function() {
       // collect childs data from SkillStore
       var skills = this.get('childs').map(App.SkillStore.get, App.SkillStore);
       // handle them has a BB collection.
       this.childs = new Skills(skills);
+      this.childs.bind('add', this.syncChildsData, this);
     },
-   
+
+    syncChildsData: function(skill) {
+      var childs = this.get('childs');
+      childs.push(skill.id);
+      this.save({childs: childs}, {silent: true});
+    },
+
     hasChild: function() {
         return this.childs.length > 0;
     }
@@ -117,23 +133,28 @@ $(document).ready(function() {
     tagName: 'li',
 
     events: {
-        'click a.add:first': 'addSkill'
+        'click a.add:first': 'addSkill',
+        'slidechange div.level': 'slideChange',
     },
 
     initialize: function() {
-        _.bindAll(this, 'render', 'addSkill');
+        _.bindAll(this, 'render', 'addSkill', 'slideChange');
         this.model.childs.bind('add', this.render);
+    },
+
+    slideChange: function(event, ui) {
+        this.model.save({level: ui.value});
     },
 
     // @todo will be nice to add to the SkillStore
     addSkill: function(event) {
         event.preventDefault();
-        this.model.childs.add(new Skill({name: this.model.get('name') + '_child'}));
+        this.model.childs.create({name: this.model.get('name') + ' child'});
     },
 
     render: function() {
         // level bar
-        var sliderEl = $('<div class="level"></div>');
+        var sliderEl = $(this.make('div', {class :"level"}));
         sliderEl.slider({
             range: "min",
             value: this.model.get('level'),
@@ -141,7 +162,7 @@ $(document).ready(function() {
             max: 10
         });
         // add a skill element
-        var addSkill = '<a href="#" class="add" title="ajouter dans la catégorie"> + </a>';
+        var addSkill = '<a href="#" class="add" title="ajouter dans la catégorie"> add </a>';
 
         // childs display, attached in order to not rebuild from scratch.
         this.childsView = this.childsView || new SkillsView({collection: this.model.childs});
@@ -157,7 +178,7 @@ $(document).ready(function() {
         $(this.el).html(skilltitle)
           .append(this.make('input', {type: "checkbox", id: this.model.get('name')}));
       } else {
-        var skilltitle = $(this.make('a', {href: "", class: "file skilltitle"}, this.model.get('name')))
+        var skilltitle = $(this.make('a', {href: "#", class: "file skilltitle"}, this.model.get('name')))
           .append(addSkill)
           .append(sliderEl);
         $(this.el).html(skilltitle);

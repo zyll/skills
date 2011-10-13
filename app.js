@@ -22,7 +22,7 @@ var Skill = mongoose.model('SkillSchema', new Schema({
     id    : ObjectId
   , name  : String
   , level : Number
-  , childs: [Skill]
+  , childs: [ObjectId]
 }));
 
 mongoose.connection.on('open', function() {
@@ -42,14 +42,25 @@ var server = express.createServer(
               if(err) {
                   send(404)
               } else {
-                  if(doc.user != req.session.user.id)
+                  //if(doc.user != req.session.user.id)
                   doc.set(req.body)
                     .save(function(err) {
                       res.send(err ? 404 : doc)
                     })
               }
           })
-      });
+      }),
+
+      app.post('/skill/', function(req, res, next) {
+        var skill = new Skill(req.body)
+        skill.save(function (err) {
+            if(err) {
+                res.send(500)
+            } else {
+                res.send(skill)
+            }
+        })
+      }),
 
       app.del('/skill/:id', function(req, res, next) {
           Skill.findById(req.params.id, function(err, doc) {
